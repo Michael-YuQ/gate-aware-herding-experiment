@@ -1,4 +1,8 @@
 idea/
+.venv/
+exp/.venv/
+exp/herding/results/
+exp/herding/figures/
 __pycache__/
 *.pyc
 *.pyo
