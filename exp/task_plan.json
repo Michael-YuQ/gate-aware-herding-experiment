@@ -1,0 +1,122 @@
+[
+  {
+    "index": 0,
+    "category": "Environment Configuration",
+    "title": "Dependencies Installation and Project Structure Initialization",
+    "description": "Set up the development environment for a 2D multi-robot herding simulation study. The project is a lightweight CPU-only Python simulation requiring numerical computation (numpy, scipy), QP solving (cvxpy for the CBF baseline), and visualization (matplotlib). No GPU or API dependencies are needed. The codebase will be organized to support a custom 2D simulator, multiple controller implementations (CBF/QP baseline, naive push heuristic, closed-formation encirclement, and the proposed entrance-aware heading-space coverage controller), shared geometry utilities, and evaluation/analysis pipelines.",
+    "status": "completed",
+    "summary": "Created .venv with numpy 2.4.4, scipy 1.17.0, cvxpy 1.8.2, matplotlib 3.10.8, seaborn 0.13.2, pandas 2.3.3. Initialized herding/ project structure with sim/, controllers/, metrics/, utils/, scripts/, configs/, results/, figures/ directories and stub Python files. All functional checks passed."
+  },
+  {
+    "index": 1,
+    "category": "Baseline Experiment",
+    "title": "2D Simulator Implementation and CBF/QP Herding Baseline on B1 (Square Enclosure)",
+    "description": "Implement the shared 2D herding simulation engine and evaluate the Control Barrier Function / Quadratic Program (CBF/QP) herding baseline on Benchmark B1 (square enclosure with entrances). The CBF/QP controller is a representative safety-filtered approach where each robot computes a desired velocity toward a 'push position' behind the target (relative to the goal/entrance), then solves a small QP per time step to satisfy collision-avoidance and keep-out constraints via CBF inequalities. This baseline represents modern safety-filtered herding methods.\n\n**Reference**: \"Robotic Shepherding in Cluttered and Unknown Environments using Control Barrier Functions\" (Hamandi et al., 2024) | https://arxiv.org/abs/2301.XXXXX ; \"Multi-Robot Cooperative Herding through Backstepping Control Barrier Functions\" (Li et al., 2025) | https://arxiv.org/abs/2501.XXXXX\n\nB1 configuration: square enclosure with side length L in {2, 4} m, entrance configurations: 1 entrance, 2 opposite entrances, 4 entrances; entrance width w in {0.3L, 0.5L}. Target starts outside the enclosure in a ring of radius 1.5L centered on the enclosure. Speed ratios v_robot/v_target in {0.5, 0.7, 0.9}; robot counts m in {2, 3, 4, 5, 6, 8, 10}. Two target behavior models (repulsion-sum, myopic avoidance); holonomic point-mass robot dynamics. At least 3 random seeds per configuration.",
+    "status": "pending",
+    "summary": ""
+  },
+  {
+    "index": 2,
+    "category": "Baseline Experiment",
+    "title": "Naive Entrance-Push Heuristic Baseline on B1",
+    "description": "Implement and evaluate a simple 'push toward nearest entrance' heuristic on Benchmark B1. In this baseline, each robot moves to a position behind the target relative to the nearest entrance direction and pushes forward — without any heading-space coverage optimization or CBF safety filtering. This baseline isolates whether the angular coverage formalism in the proposed method adds value beyond simply driving the target toward the door. It is critical for distinguishing 'angular coverage helps' from 'pushing toward the door helps regardless of formalism'.\n\n**Reference**: Custom heuristic baseline (no specific paper). Inspired by standard push-to-goal herding strategies in Pierson & Schwager, 2015 and Strombom et al., 2014.",
+    "status": "pending",
+    "summary": ""
+  },
+  {
+    "index": 3,
+    "category": "Baseline Experiment",
+    "title": "Closed-Formation Encirclement Reference on B1 (Subset)",
+    "description": "Implement and evaluate a closed-formation encirclement reference on a subset of Benchmark B1 configurations. Robots maintain a ring/arc formation around the target and translate the formation toward the nearest entrance. This serves as an upper-bound reference for the number of robots required when not exploiting wall geometry — full encirclement inherently requires more robots than partial coverage strategies.\n\n**Reference**: \"Herding by Caging: a Topological Approach towards Guiding Moving Agents via Mobile Robots\" (Varava et al., 2017) | https://doi.org/10.1007/978-3-319-67361-5_22 ; \"Herding by caging: a formation-based motion planning framework for guiding mobile agents\" (Song et al., 2021) | https://doi.org/10.1177/02783649211008578\n\nRun on a representative subset: L = 4 m, entrance configs {1, 2 opposite, 4}, w = 0.3L, speed ratios {0.5, 0.7}, robot counts {4, 6, 8, 10}, repulsion-sum target model, holonomic robots. This subset focuses on configurations where encirclement is more challenging (lower speed ratio, more entrances).",
+    "status": "pending",
+    "summary": ""
+  },
+  {
+    "index": 4,
+    "category": "Main Experiment",
+    "title": "Entrance-Aware Heading-Space Coverage Controller on B1 (Square Enclosure)",
+    "description": "Implement and evaluate the proposed entrance-aware heading-space coverage controller on Benchmark B1. The method operates in two stages: (A) wall-anchoring — push the target near a wall adjacent to an entrance so walls block many headings for free; (B) entrance funneling — maximize coverage of non-entrance headings by assigning robots to the largest uncovered angular sectors, leaving the entrance wedge as the target's least-penalized escape direction.\n\nThe core novelty is the heading-space blocking model and the Cov(t) diagnostic metric. At each time step, discretize headings into K = 360 bins. A heading is blocked by a robot if the target's predicted position along that heading (within horizon tau) falls within the robot's reach disk. A heading is blocked by the enclosure if the corresponding ray intersects a non-entrance wall. The entrance wedge E(theta) marks headings leading to any entrance. The coverage metric Cov(t) = (fraction of non-entrance headings that are blocked). The controller assigns robots to maximize Cov(t).\n\nThis item implements the heading-space computation module (`metrics/heading.py`) and the coverage controller (`controllers/coverage.py`), then runs the full B1 sweep. Key parameters: K = 360 heading bins, horizon tau = 1.0 s, interaction radius R_int = 0.2 m, wall-anchoring threshold d_wall = 0.3 m, robot ring radius rho = 0.6 m.",
+    "status": "pending",
+    "summary": ""
+  },
+  {
+    "index": 5,
+    "category": "Optimization",
+    "title": "Optimize: Entrance-Aware Heading-Space Coverage Controller on B1 (Square Enclosure)",
+    "description": "Optimize the main experiment 'Entrance-Aware Heading-Space Coverage Controller on B1 (Square Enclosure)' to improve results.",
+    "status": "pending",
+    "summary": ""
+  },
+  {
+    "index": 6,
+    "category": "Main Experiment",
+    "title": "All Methods on B2 (Narrow-Passage / Doorway Navigation)",
+    "description": "Evaluate all methods on Benchmark B2 — a narrow-passage / doorway navigation setting that tests generalization beyond the square-pen geometry. B2 consists of a corridor-like environment: two parallel walls forming a channel with a narrow doorway (gap) at one end. The target starts at the open end and must be guided through the doorway. This setting is inspired by herding-through-constrained-opening work (formation deformation through narrow passages, Song et al. 2021).\n\nB2 geometry: corridor length 4 m, corridor width 2 m, doorway width w_door in {0.4, 0.8} m centered on one end-wall. Target starts 1.5 m outside the doorway end. All four controllers (CBF/QP, naive push, closed-formation, proposed coverage) are run on B2 to check cross-geometry generalization.\n\nThis item adapts the World class for the corridor geometry and runs a focused sweep: speed ratios {0.5, 0.7}, robot counts {3, 4, 5, 6, 8}, repulsion-sum target model, holonomic robots, >= 3 seeds.",
+    "status": "pending",
+    "summary": ""
+  },
+  {
+    "index": 7,
+    "category": "Optimization",
+    "title": "Optimize: All Methods on B2 (Narrow-Passage / Doorway Navigation)",
+    "description": "Optimize the main experiment 'All Methods on B2 (Narrow-Passage / Doorway Navigation)' to improve results.",
+    "status": "pending",
+    "summary": ""
+  },
+  {
+    "index": 8,
+    "category": "Main Experiment",
+    "title": "Ablation: Coverage Controller without Wall Blocking on B1 (Condition C)",
+    "description": "Run the ablation variant (Condition C from the experimental plan) that evaluates the proposed coverage controller with wall blocking disabled in the coverage objective. In this variant, B_wall(theta) is set to zero for all headings — the controller only counts robot-based blocking and ignores the free blocking provided by enclosure walls. The entrance wedge E(theta) remains unchanged. This ablation isolates the contribution of the wall-leverage mechanism and is part of the core success criteria (the decision rule requires that this ablation loses a substantial fraction of the gain compared to the full method).\n\nRun on B1 with a focused sweep: L = 4 m, entrance configs {1, 2 opposite, 4}, w = 0.3L, speed ratios {0.5, 0.7}, robot counts {2, 3, 4, 5, 6, 8, 10}, repulsion-sum target model, holonomic robots, >= 3 seeds.",
+    "status": "pending",
+    "summary": ""
+  },
+  {
+    "index": 9,
+    "category": "Optimization",
+    "title": "Optimize: Ablation: Coverage Controller without Wall Blocking on B1 (Condition C)",
+    "description": "Optimize the main experiment 'Ablation: Coverage Controller without Wall Blocking on B1 (Condition C)' to improve results.",
+    "status": "pending",
+    "summary": ""
+  },
+  {
+    "index": 10,
+    "category": "Effectiveness Evaluation",
+    "title": "Success Criteria Evaluation",
+    "description": "Evaluate whether the proposed entrance-aware heading-space coverage controller is effective by comparing it against all baselines according to the pre-defined success criteria. The success criteria state: the proposal is supported if, for at least two entrance configurations in B1 and at least one setting in B2, the proposed method (B) reaches >= 90% success with >= 25% fewer robots than the CBF/QP baseline (A) at v_robot/v_target <= 0.7, AND median time-to-entry is not worse by more than 20%, AND the ablation (C, no wall blocking) loses a substantial fraction of the gain. This item collects all results from Main Experiments, Baseline Experiments, and the ablation study, then applies the decision rule.",
+    "status": "pending",
+    "summary": ""
+  },
+  {
+    "index": 11,
+    "category": "Analysis Experiment",
+    "title": "Parameter Sensitivity Analysis",
+    "description": "Sensitivity analysis for the key parameters of the proposed coverage controller: prediction horizon tau, interaction radius R_int, and heading discretization K. These parameters define the heading-space blocking model and may significantly affect performance. This analysis identifies robust operating ranges and flags any parameter sensitivity risks.\n\nRun on a fixed B1 configuration: L = 4 m, 2-opposite-entrance, w = 0.3L, speed ratio 0.7, repulsion-sum target, holonomic robots. Vary one parameter at a time while holding others at default values. Use robot count m = 5 (a mid-range value) and >= 3 seeds per configuration.",
+    "status": "pending",
+    "summary": ""
+  },
+  {
+    "index": 12,
+    "category": "Analysis Experiment",
+    "title": "Diagnostic Metric Validity: Cov(t) Correlation with Success",
+    "description": "Analyze the validity of the proposed diagnostic metric Cov(t) as a predictor of herding success. The hypothesis is that higher time-averaged Cov(t) during an episode correlates with higher probability of successful target entry. This analysis validates Cov(t) as a useful diagnostic and planning tool — e.g., if a system designer knows the achievable Cov(t) for a given robot count and speed ratio, they can predict whether the configuration will succeed.\n\nUse Cov(t) time-series data recorded during the Main Experiment (proposed coverage controller on B1). Aggregate across all B1 configurations.",
+    "status": "pending",
+    "summary": ""
+  },
+  {
+    "index": 13,
+    "category": "Analysis Experiment",
+    "title": "Unicycle Robot Dynamics Robustness Check",
+    "description": "Test the robustness of the proposed coverage controller under unicycle robot dynamics (bounded linear and angular velocity, similar to a differential-drive vehicle) instead of the default holonomic point-mass model. This checks whether the method's performance degrades when robots have realistic turning constraints and cannot move instantaneously in any direction.\n\nRun on a focused B1 subset: L = 4 m, entrance configs {1, 2 opposite}, w = 0.3L, speed ratios {0.5, 0.7}, robot counts {3, 5, 8}, repulsion-sum target, >= 3 seeds. Compare against the holonomic results from the Main Experiment.",
+    "status": "pending",
+    "summary": ""
+  },
+  {
+    "index": 14,
+    "category": "Analysis Experiment",
+    "title": "Trajectory Visualization and Qualitative Analysis",
+    "description": "Generate trajectory visualizations for representative episodes to provide qualitative insight into how each controller operates. Visualizations show robot paths, target path, enclosure geometry, and (for the proposed method) the evolution of the heading-space coverage map over time. These figures serve as qualitative evidence of the two-stage control mechanism (wall-anchoring followed by entrance funneling) and contrast controller behaviors.",
+    "status": "pending",
+    "summary": ""
+  }
+]

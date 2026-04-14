@@ -1,0 +1,9 @@
+.venv/
+.env
+wandb/
+herding/results/
+herding/figures/
+__pycache__/
+*.pyc
+*.pyo
+
