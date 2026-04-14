@@ -32,11 +32,9 @@ CUDA is not required.
 ## Clone
 
 ```bash
-git clone <REPO_URL>
-cd experiment/exp
+git clone https://github.com/Michael-YuQ/gate-aware-herding-experiment.git
+cd gate-aware-herding-experiment/exp
 ```
-
-Replace `<REPO_URL>` with the GitHub repository URL.
 
 ## Setup
 
@@ -109,7 +107,7 @@ tail -f run_b1.log
 ## Updating the Server Copy
 
 ```bash
-cd /path/to/experiment
+cd /path/to/gate-aware-herding-experiment
 git pull
 cd exp
 source .venv/bin/activate
